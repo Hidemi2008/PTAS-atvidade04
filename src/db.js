@@ -4,20 +4,25 @@ import { fileURLToPath } from "node:url"
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
-const DB_PATH = join(__dirname, 'data.json')
+const USERS_PATH = join(__dirname, 'data.json')
+const PRODUCTS_PATH = join(__dirname, 'products.json')
 
-export async function readUsers() {
+async function readJson(path) {
     try {
-        const raw = await readFile(DB_PATH, "utf-8")
+        const raw = await readFile(path, "utf-8")
         return JSON.parse(raw)
-
     } catch (err) {
         if (err.code === "ENOENT") return []
-
         throw err
     }
 }
 
-export async function writeUsers(users) {
-    await writeFile(DB_PATH, JSON.stringify(users, null, 2), 'utf8')
+async function writeJson(path, data) {
+    await writeFile(path, JSON.stringify(data, null, 2), 'utf8')
 }
+
+export const readUsers = () => readJson(USERS_PATH)
+export const writeUsers = (users) => writeJson(USERS_PATH, users)
+
+export const readProducts = () => readJson(PRODUCTS_PATH)
+export const writeProducts = (products) => writeJson(PRODUCTS_PATH, products)
