@@ -23,5 +23,14 @@ export const usersModel = {
     await writeUsers(users)
     return novo
   },
-  // update, remove… (mesmo padrão: mexem nos dados, devolvem dados)
+
+  // Devolve o usuário atualizado ou null se não existir
+  async update(id, data) {
+    const users = await readUsers()
+    const i = users.findIndex(u => u.id === id && !u.deletedAt)
+    if (i === -1) return null
+    users[i] = { ...users[i], ...data, id } // id nunca é sobrescrito
+    await writeUsers(users)
+    return users[i]
+  },
 }

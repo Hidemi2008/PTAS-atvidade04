@@ -1,34 +1,35 @@
-// src/controllers/users.controller.js
-// Coordena: recebe a requisição, chama o model e monta a resposta HTTP.
-import { usersModel } from '../models/users.model.js'
+// Coordena: recebe a requisição, chama o service e monta a resposta HTTP.
 import { usersService } from '../services/users.service.js'
 
 export async function listUsers(req, res, next) {
     try {
-        const users = await usersModel.findAll()
-        res.json(users) // 200 implícito
-    } catch (err) {
-        next(err) // entrega ao middleware global de erro (aula 07)
-    }
-}
-
-export async function getUser(req, res, next) {
-    try {
-        const user = await usersModel.findById(Number(req.params.id))
-        if (!user) {
-            return res.status(404).json({ erro: 'não encontrado' })
-        }
-        res.json(user)
+        res.json(await usersService.listUsers())
     } catch (err) {
         next(err)
     }
 }
 
-// src/controllers/users.controller.js (trecho)
+export async function getUser(req, res, next) {
+    try {
+        res.json(await usersService.getUser(Number(req.params.id)))
+    } catch (err) {
+        next(err)
+    }
+}
+
 export async function createUser(req, res, next) {
     try {
         const novo = await usersService.createUser(req.body)
-        res.status(201).json(novo) // 201 = "criado com sucesso"
+        res.status(201).json(novo)
+    } catch (err) {
+        next(err)
+    }
+}
+
+export async function updateUser(req, res, next) {
+    try {
+        const atualizado = await usersService.updateUser(Number(req.params.id), req.body)
+        res.json(atualizado)
     } catch (err) {
         next(err)
     }
