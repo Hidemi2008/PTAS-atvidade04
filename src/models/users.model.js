@@ -10,6 +10,7 @@ export const usersModel = {
 
   // Busca um usuário pelo id; devolve null se não existir
   async findById(id) {
+    id = Number(id)
     const user = (await readUsers()).find(x => x.id === id && !x.deletedAt)
     return user || null
   },
@@ -26,6 +27,7 @@ export const usersModel = {
 
   // Devolve o usuário atualizado ou null se não existir
   async update(id, data) {
+    id = Number(id)
     const users = await readUsers()
     const i = users.findIndex(u => u.id === id && !u.deletedAt)
     if (i === -1) return null

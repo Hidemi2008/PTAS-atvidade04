@@ -1,38 +1,33 @@
-// Recebe a requisição, chama o model e monta a resposta HTTP.
-import { productsModel } from '../models/products.model.js'
+// Recebe a requisição, chama o service e monta a resposta HTTP.
+import { productsService } from '../services/products.service.js'
 
 export async function listProducts(req, res, next) {
     try {
-        res.json(await productsModel.findAll())
+        res.json(await productsService.listProducts())
     } catch (err) { next(err) }
 }
 
 export async function getProduct(req, res, next) {
     try {
-        const product = await productsModel.findById(Number(req.params.id))
-        if (!product) return res.status(404).json({ erro: 'não encontrado' })
-        res.json(product)
+        res.json(await productsService.getProduct(Number(req.params.id)))
     } catch (err) { next(err) }
 }
 
 export async function createProduct(req, res, next) {
     try {
-        res.status(201).json(await productsModel.create(req.body))
+        res.status(201).json(await productsService.createProduct(req.body))
     } catch (err) { next(err) }
 }
 
 export async function updateProduct(req, res, next) {
     try {
-        const product = await productsModel.update(Number(req.params.id), req.body)
-        if (!product) return res.status(404).json({ erro: 'não encontrado' })
-        res.json(product)
+        res.json(await productsService.updateProduct(Number(req.params.id), req.body))
     } catch (err) { next(err) }
 }
 
 export async function deleteProduct(req, res, next) {
     try {
-        const ok = await productsModel.remove(Number(req.params.id))
-        if (!ok) return res.status(404).json({ erro: 'não encontrado' })
+        await productsService.deleteProduct(Number(req.params.id))
         res.status(204).end()
     } catch (err) { next(err) }
 }

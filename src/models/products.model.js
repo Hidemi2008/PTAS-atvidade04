@@ -7,6 +7,7 @@ export const productsModel = {
   },
 
   async findById(id) {
+    id = Number(id)
     const product = (await readProducts()).find(p => p.id === id && !p.deletedAt)
     return product || null
   },
@@ -22,6 +23,7 @@ export const productsModel = {
 
   // Devolve o produto atualizado ou null se não existir
   async update(id, data) {
+    id = Number(id)
     const products = await readProducts()
     const i = products.findIndex(p => p.id === id && !p.deletedAt)
     if (i === -1) return null
@@ -32,6 +34,7 @@ export const productsModel = {
 
   // Soft delete (mesmo padrão dos users). Devolve true/false
   async remove(id) {
+    id = Number(id)
     const products = await readProducts()
     const i = products.findIndex(p => p.id === id && !p.deletedAt)
     if (i === -1) return false
