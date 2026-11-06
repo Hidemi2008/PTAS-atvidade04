@@ -1,0 +1,11 @@
+[
+  {
+    "id": 1,
+    "nome": "Notebook",
+    "preco": 3200,
+    "tags": [
+      "eletronico",
+      "computador"
+    ]
+  }
+]

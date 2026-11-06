@@ -52,3 +52,12 @@ export async function updateUser(req, res, next) {
         next(err)
     }
 }
+
+export async function deleteUser(req, res, next) {
+    try {
+        await usersService.deleteUser(req.params.id)
+        res.status(204).end()
+    } catch (err) {
+        next(err)
+    }
+}

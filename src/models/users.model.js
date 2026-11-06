@@ -2,7 +2,8 @@ import { ObjectId } from 'mongodb'
 import { conectar } from '../data/db.js'
 
 function mapUser(user) {
-  return { ...user, id: String(user._id) }
+  const { _id, ...rest } = user
+  return { ...rest, id: String(_id) }
 }
 
 function toObjectId(id) {
@@ -42,5 +43,17 @@ export const usersModel = {
       { returnDocument: 'after' },
     )
     return result ? mapUser(result) : null
+  },
+
+  async remove(id) {
+    const objectId = toObjectId(id)
+    if (!objectId) return false
+
+    const db = await conectar()
+    const result = await db.collection('users').updateOne(
+      { _id: objectId, deletedAt: { $exists: false } },
+      { $set: { deletedAt: new Date().toISOString() } },
+    )
+    return result.matchedCount === 1
   },
 }

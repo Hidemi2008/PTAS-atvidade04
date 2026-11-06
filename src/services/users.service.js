@@ -35,7 +35,12 @@ export const usersService = {
             .some(u => u.email === data.email)
         if (emailJaExiste) throw httpError(409, 'e-mail já cadastrado')
 
-        return usersModel.create(data)
+        try {
+            return await usersModel.create(data)
+        } catch (err) {
+            if (err.code === 11000) throw httpError(409, 'e-mail já cadastrado')
+            throw err
+        }
     },
 
     async updateUser(id, data) {
@@ -49,6 +54,18 @@ export const usersService = {
             if (emailEmUso) throw httpError(409, 'e-mail já cadastrado')
         }
 
-        return usersModel.update(id, data)
+        try {
+            return await usersModel.update(id, data)
+        } catch (err) {
+            if (err.code === 11000) throw httpError(409, 'e-mail já cadastrado')
+            throw err
+        }
+    },
+
+    async deleteUser(id) {
+        const existente = await usersModel.findById(id)
+        if (!existente) throw httpError(404, 'não encontrado')
+
+        return usersModel.remove(id)
     },
 }

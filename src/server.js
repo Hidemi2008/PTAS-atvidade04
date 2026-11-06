@@ -1,21 +1,32 @@
-// src/server.js
-// Só monta o app: middlewares globais, routers e middleware de erro.
 import express from 'express'
 import cors from 'cors'
+import { conectar } from './data/db.js'
 import usersRouter from './routes/users.routes.js'
-import productsRouter from './routes/products.routes.js' // novo
+import productsRouter from './routes/products.routes.js'
 
 const app = express()
 
-app.use(express.json()) // traduz o corpo JSON da requisição
+app.use(express.json())
 app.use(cors())
-app.use('/users', usersRouter) // tudo que começa com /users vai para o router de users
-app.use('/products', productsRouter) // novo
+app.use('/users', usersRouter)
+app.use('/products', productsRouter)
 
-// src/server.js (trecho)
 app.use((err, req, res, next) => {
     const status = err.status ?? 500
     res.status(status).json({ erro: err.message })
 })
 
-app.listen(process.env.PORT || 3000)
+async function main() {
+    try {
+        await conectar()
+        const port = process.env.PORT || 3000
+        app.listen(port, () => {
+            console.log(`Conectado ao Atlas. API em http://localhost:${port}`)
+        })
+    } catch (err) {
+        console.error(`Falha ao conectar no MongoDB Atlas: ${err.message}`)
+        process.exit(1)
+    }
+}
+
+main()

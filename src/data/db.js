@@ -1,4 +1,3 @@
-import 'dotenv/config'
 import { MongoClient } from 'mongodb'
 
 const client = new MongoClient(process.env.MONGODB_URI)
@@ -7,8 +6,9 @@ let databasePromise
 export async function conectar() {
     if (!databasePromise) {
         databasePromise = client.connect().then(async connectedClient => {
-            const db = connectedClient.db()
+            const db = connectedClient.db('ptas3')
             await db.command({ ping: 1 })
+            await db.collection('users').createIndex({ email: 1 }, { unique: true })
             return db
         }).catch(error => {
             databasePromise = undefined
