@@ -3,7 +3,25 @@ import { usersService } from '../services/users.service.js'
 
 export async function listUsers(req, res, next) {
     try {
-        res.json(await usersService.listUsers())
+        const page = Math.max(1, Math.floor(Number(req.query.page) || 1))
+        const limit = Math.min(
+            100,
+            Math.max(1, Math.floor(Number(req.query.limit) || 20)),
+        )
+        const offset = (page - 1) * limit
+        const idade = req.query.idade === undefined
+            ? undefined
+            : Number(req.query.idade)
+
+        res.json(await usersService.listUsers({
+            page,
+            limit,
+            offset,
+            nome: req.query.nome,
+            email: req.query.email,
+            idade: Number.isNaN(idade) ? undefined : idade,
+            sort: req.query.sort,
+        }))
     } catch (err) {
         next(err)
     }

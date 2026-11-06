@@ -3,7 +3,25 @@ import { productsService } from '../services/products.service.js'
 
 export async function listProducts(req, res, next) {
     try {
-        res.json(await productsService.listProducts())
+        const page = Math.max(1, Math.floor(Number(req.query.page) || 1))
+        const limit = Math.min(
+            100,
+            Math.max(1, Math.floor(Number(req.query.limit) || 20)),
+        )
+        const offset = (page - 1) * limit
+        const preco = req.query.preco === undefined
+            ? undefined
+            : Number(req.query.preco)
+
+        res.json(await productsService.listProducts({
+            page,
+            limit,
+            offset,
+            nome: req.query.nome,
+            preco: Number.isNaN(preco) ? undefined : preco,
+            tags: req.query.tags,
+            sort: req.query.sort,
+        }))
     } catch (err) { next(err) }
 }
 
