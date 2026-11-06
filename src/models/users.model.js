@@ -1,38 +1,46 @@
-// src/models/users.model.js
-// Único arquivo que "sabe" que os usuários moram em um arquivo JSON.
-import { readUsers, writeUsers } from '../db.js'
+import { ObjectId } from 'mongodb'
+import { conectar } from '../data/db.js'
+
+function mapUser(user) {
+  return { ...user, id: String(user._id) }
+}
+
+function toObjectId(id) {
+  return ObjectId.isValid(id) ? new ObjectId(id) : null
+}
 
 export const usersModel = {
-  // Devolve apenas usuários ativos (não removidos via soft delete)
   async findAll() {
-    return (await readUsers()).filter(u => !u.deletedAt)
+    const db = await conectar()
+    const users = await db.collection('users').find().toArray()
+    return users.filter(user => !user.deletedAt).map(mapUser)
   },
 
-  // Busca um usuário pelo id; devolve null se não existir
   async findById(id) {
-    id = Number(id)
-    const user = (await readUsers()).find(x => x.id === id && !x.deletedAt)
-    return user || null
+    const objectId = toObjectId(id)
+    if (!objectId) return null
+
+    const db = await conectar()
+    const user = await db.collection('users').findOne({ _id: objectId })
+    return user && !user.deletedAt ? mapUser(user) : null
   },
 
-  // Cria um usuário novo, gerando o id como "maior id atual + 1"
   async create(data) {
-    const users = await readUsers()
-    const id = users.length ? Math.max(...users.map(u => u.id)) + 1 : 1
-    const novo = { id, ...data }
-    users.push(novo)
-    await writeUsers(users)
-    return novo
+    const db = await conectar()
+    const result = await db.collection('users').insertOne(data)
+    return mapUser({ ...data, _id: result.insertedId })
   },
 
-  // Devolve o usuário atualizado ou null se não existir
   async update(id, data) {
-    id = Number(id)
-    const users = await readUsers()
-    const i = users.findIndex(u => u.id === id && !u.deletedAt)
-    if (i === -1) return null
-    users[i] = { ...users[i], ...data, id } // id nunca é sobrescrito
-    await writeUsers(users)
-    return users[i]
+    const objectId = toObjectId(id)
+    if (!objectId) return null
+
+    const db = await conectar()
+    const result = await db.collection('users').findOneAndUpdate(
+      { _id: objectId, deletedAt: { $exists: false } },
+      { $set: data },
+      { returnDocument: 'after' },
+    )
+    return result ? mapUser(result) : null
   },
 }

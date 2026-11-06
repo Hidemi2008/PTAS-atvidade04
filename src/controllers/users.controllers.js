@@ -29,7 +29,7 @@ export async function listUsers(req, res, next) {
 
 export async function getUser(req, res, next) {
     try {
-        res.json(await usersService.getUser(Number(req.params.id)))
+        res.json(await usersService.getUser(req.params.id))
     } catch (err) {
         next(err)
     }
@@ -46,7 +46,7 @@ export async function createUser(req, res, next) {
 
 export async function updateUser(req, res, next) {
     try {
-        const atualizado = await usersService.updateUser(Number(req.params.id), req.body)
+        const atualizado = await usersService.updateUser(req.params.id, req.body)
         res.json(atualizado)
     } catch (err) {
         next(err)

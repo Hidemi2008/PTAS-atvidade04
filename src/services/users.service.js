@@ -45,7 +45,7 @@ export const usersService = {
         // Extra: trocar o e-mail para o de OUTRO usuário também é conflito
         if (data.email && data.email !== existente.email) {
             const emailEmUso = (await usersModel.findAll())
-                .some(u => u.email === data.email && u.id !== id)
+                .some(u => u.email === data.email && u.id !== String(id))
             if (emailEmUso) throw httpError(409, 'e-mail já cadastrado')
         }
 
